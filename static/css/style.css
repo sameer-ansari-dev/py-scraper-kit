@@ -1,0 +1,29 @@
+/* Custom accents to complement Bootstrap dark theme */
+body { background: linear-gradient(180deg,#0f1724 0%, #0b1220 100%); }
+.card { border-radius: 12px; }
+.navbar-brand img { filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3,7,18,0.6);
+  z-index: 2000;
+}
+.loading-overlay .loading-box {
+  background: rgba(7,10,23,0.9);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 28px 36px;
+  border-radius: 10px;
+  box-shadow: 0 6px 30px rgba(2,6,23,0.6);
+}
+.muted { color: rgba(255,255,255,0.6); }
+
+/* Make cards stand out on smaller screens */
+@media (max-width: 576px) {
+  .card { padding: 12px; }
+  .loading-overlay .loading-box { width: 85%; }
+}

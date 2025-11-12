@@ -1,0 +1,7 @@
+<!-- Simple square logo for favicon (paste as-is) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+  <rect x="2" y="2" width="20" height="20" rx="4" fill="#0b1220"></rect>
+  <path d="M7 12h10" stroke="#14b8a6" stroke-linecap="round"></path>
+  <path d="M7 8h10" stroke="#60a5fa" stroke-linecap="round"></path>
+  <path d="M7 16h6" stroke="#fbbf24" stroke-linecap="round"></path>
+</svg>

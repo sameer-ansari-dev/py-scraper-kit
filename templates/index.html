@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card bg-secondary text-light shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title">Scrape demo sites — fast & polite</h2>
+        <p class="card-text text-muted">Use this interface to scrape demo sites for learning. For production, replace the secret key and consider background workers.</p>
+
+        <form id="scrapeForm" method="post" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Site</label>
+            <select name="site" class="form-select">
+              <option value="quotes">quotes.toscrape.com</option>
+              <option value="books">books.toscrape.com</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Pages</label>
+            <input name="pages" type="number" min="1" value="1" class="form-control">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Format</label>
+            <select name="format" class="form-select">
+              <option value="csv">CSV</option>
+              <option value="xlsx">XLSX</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Tag (quotes only)</label>
+            <input name="tag" class="form-control" placeholder="e.g. life">
+          </div>
+
+          <div class="col-12 d-flex gap-2 align-items-center">
+            <button id="scrapeBtn" type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-cloud-download"></i> Scrape
+            </button>
+            <div class="text-muted small">Default delay: <strong>1s</strong> between requests (polite)</div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <h5 class="mb-3">Why this UI?</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card h-100 text-dark">
+            <div class="card-body">
+              <h6 class="card-title">Polite by default</h6>
+              <p class="card-text small">HttpClient enforces a delay and rotates User-Agent to reduce impact.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 text-dark">
+            <div class="card-body">
+              <h6 class="card-title">CSV / Excel export</h6>
+              <p class="card-text small">Download results as CSV or XLSX for easy sharing with clients.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 text-dark">
+            <div class="card-body">
+              <h6 class="card-title">Quick demo-ready</h6>
+              <p class="card-text small">Use this UI during client demos — it looks polished and professional.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay d-none">
+  <div class="loading-box text-center">
+    <div class="spinner-border text-white" role="status"></div>
+    <p class="mt-3 mb-0">Scraping... please wait</p>
+    <p class="muted small">This runs synchronously — for long jobs use background workers.</p>
+  </div>
+</div>
+{% endblock %}

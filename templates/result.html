@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card bg-secondary text-light shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title">Scrape results</h3>
+        <p class="card-text">Site: <strong>{{ site }}</strong> · Rows scraped: <strong>{{ rows }}</strong></p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-success" href="{{ url_for('download', fname=download_name) }}">Download result</a>
+          <a class="btn btn-outline-light" href="{{ url_for('index') }}">Run another scrape</a>
+        </div>
+        <hr class="my-4">
+        <p class="small text-muted">Files are stored temporarily in the server temp folder and may be removed automatically.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

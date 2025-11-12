@@ -1,63 +1,81 @@
-from flask import Flask, request, render_template_string, send_file, flash, url_for, redirect
-from pathlib import Path
+"""
+Upgraded Flask UI for py-scraper-kit.
+
+Features:
+- Uses templates/static assets (Bootstrap + custom CSS)
+- Shows a loading overlay while the server performs the scrape
+- Writes result to a temp file with a UUID-based filename
+- Redirects to a result page with a download link and simple metadata
+"""
+from __future__ import annotations
 import tempfile
+from pathlib import Path
+import uuid
+
+from flask import Flask, request, render_template, send_file, redirect, url_for, flash
+
 from scraper.core import HttpClient, export_rows
 from scraper.sites import quotes, books
 
-app = Flask(__name__)
-app.secret_key = "dev-key"
+app = Flask(__name__, template_folder="templates", static_folder="static")
+app.secret_key = "dev-key-for-local-testing"  # replace for production
 
-HTML = """
-<h1>py-scraper-kit UI</h1>
-<form method="post">
-  Site: <select name="site">
-    <option value="quotes">quotes</option>
-    <option value="books">books</option>
-  </select><br>
-  Pages: <input name="pages" value="1" type="number"><br>
-  Tag (quotes only): <input name="tag"><br>
-  Format: <select name="format"><option>csv</option><option>xlsx</option></select><br>
-  <button>Scrape</button>
-</form>
-{% for m in get_flashed_messages() %}
-<p>{{m}}</p>
-{% endfor %}
-{% if link %}
-<p><a href="{{link}}">Download result</a></p>
-{% endif %}
-"""
+def _safe_tmp_path(suffix: str) -> Path:
+    """Create a temp file path with a short UUID to avoid collisions."""
+    name = f"py-scraper-{uuid.uuid4().hex[:8]}{suffix}"
+    return Path(tempfile.gettempdir()) / name
 
-
-@app.route("/", methods=["GET", "POST"])
-def home():
+@app.route("/", methods=("GET", "POST"))
+def index():
     if request.method == "POST":
-        site = request.form["site"]
-        pages = int(request.form["pages"])
-        tag = request.form.get("tag")
-        fmt = request.form["format"]
+        site = request.form.get("site", "quotes")
+        pages = max(1, int(request.form.get("pages") or 1))
+        tag = request.form.get("tag") or None
+        fmt = request.form.get("format", "csv")
         suffix = ".xlsx" if fmt == "xlsx" else ".csv"
-        tmp = Path(tempfile.gettempdir()) / f"result{suffix}"
 
         client = HttpClient(delay=1.0)
-        data = quotes.scrape(pages, client, tag) if site == "quotes" else books.scrape(pages, client)
-        if not data:
-            flash("No data found.")
-            return render_template_string(HTML)
+        try:
+            if site == "quotes":
+                rows = quotes.scrape(pages=pages, client=client, tag=tag)
+            else:
+                rows = books.scrape(pages=pages, client=client)
+        except Exception as exc:
+            # Keep user-friendly message and log to console for local debugging
+            app.logger.exception("Scrape failed")
+            flash(f"Scrape failed: {exc}", "danger")
+            return render_template("index.html")
 
-        export_rows(data, tmp)
-        flash(f"Scraped {len(data)} rows.")
-        return render_template_string(HTML, link=url_for("download", fname=tmp.name))
-    return render_template_string(HTML)
+        if not rows:
+            flash("No results found for the given parameters.", "warning")
+            return render_template("index.html")
 
+        out_path = _safe_tmp_path(suffix)
+        export_rows(rows, out_path)
 
-@app.route("/download/<fname>")
+        # Redirect to result page with filename and metadata in query params
+        return redirect(url_for("result", fname=out_path.name, rows=len(rows), site=site))
+
+    return render_template("index.html")
+
+@app.route("/result/<path:fname>")
+def result(fname):
+    rows = int(request.args.get("rows", 0))
+    site = request.args.get("site", "quotes")
+    tmp = Path(tempfile.gettempdir()) / fname
+    if not tmp.exists():
+        flash("Result file not found (it may have been removed).", "danger")
+        return redirect(url_for("index"))
+    return render_template("result.html", download_name=tmp.name, rows=rows, site=site)
+
+@app.route("/download/<path:fname>")
 def download(fname):
-    f = Path(tempfile.gettempdir()) / fname
-    if not f.exists():
-        flash("File not found.")
-        return redirect(url_for("home"))
-    return send_file(f, as_attachment=True)
-
+    tmp = Path(tempfile.gettempdir()) / fname
+    if not tmp.exists():
+        flash("File not available for download.", "danger")
+        return redirect(url_for("index"))
+    # Serve file as attachment
+    return send_file(tmp, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

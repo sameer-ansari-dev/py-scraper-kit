@@ -1,0 +1,7 @@
+<!-- Small horizontal logo -->
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="36" viewBox="0 0 120 36">
+  <rect x="0" y="0" width="36" height="36" rx="6" fill="#0b1220"></rect>
+  <path d="M8 10h20" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"></path>
+  <path d="M8 18h24" stroke="#14b8a6" stroke-width="2" stroke-linecap="round"></path>
+  <text x="48" y="22" fill="#fff" font-family="Segoe UI, Roboto, Arial" font-size="14">py-scraper-kit</text>
+</svg>
